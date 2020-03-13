@@ -16,11 +16,11 @@ $ pip install -r requirements.txt
 
 | Arguments |Abbreviation |Value |
 | ------ |--------|------ |
-| Classes |c |two, multi |
-| Rate |r |0.33(0-1decimal) |
-| Model |m |dt, rf, svm|
-| Features |f |41(0-41integer) |
-| Normtype |n |41(0-41integer) |
+| Classes:Do binary classification or multiple classes(attack categories) |c |two, multi |
+| Rate: the ratio of dataset splitting |r |0.33(0-1decimal) |
+| Model:Decision tree, Random Forest, SVM |m |dt, rf, svm|
+| Features: the number of features used for training |f |41(0-41integer) |
+| Normtype: do standard Normalization or MaxMin Normalization |n |41(0-41integer) |
 Example Usage: python train.py -c multi -r 0.33 -m svm -n std -f 25
 
 Edit runme.sh file as you design like following:
