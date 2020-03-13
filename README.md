@@ -25,12 +25,15 @@ Example Usage: python train.py -c multi -r 0.33 -m svm -n std -f 25
 
 Edit runme.sh file as you design like following:
 
+```sh
 python train.py -c two -r 0.33 -m dt -n std -f 25
 python train.py -c multi -r 0.33 -m dt -n std -f 25
 python train.py -c two -r 0.33 -m rf -n std -f 25
 python train.py -c multi -r 0.33 -m rf -n std -f 25
 python train.py -c two -r 0.33 -m svm -n std -f 25
 python train.py -c multi -r 0.33 -m svm -n std -f 25
+```
+
 
 # Train!
 
