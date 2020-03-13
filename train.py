@@ -1,8 +1,8 @@
 """train.py: Starter file to run DT,RF,SVM classifier"""
 
 
-#Example Usage: python train -c two -r 0.33 -m svm -n std -f 25
-#Example Usage: python train -c multi -r 0.33 -m svm -n normtype -f 30
+#Example Usage: python train.py -c two -r 0.33 -m svm -n std -f 41
+
 
 __author__      = "Yuan Zi"
 __email__ = "yzi2@central.uh.edu"
@@ -12,8 +12,7 @@ __version__ = "1.0.0"
 
 def main():
     """ The main funtion that parses input arguments, calls the approrpiate
-     kmeans method and writes the output image"""
-
+     classification algorithms to train"""
     # !!configure your datasets' path here!!--------------------------------------------------------------------------------
     path1 = '/data/UNSW-NB15/UNSW-NB15_1.csv'
     path2 = '/data/UNSW-NB15/UNSW-NB15_2.csv'
@@ -21,6 +20,9 @@ def main():
     path4 = '/data/UNSW-NB15/UNSW-NB15_4.csv'
     # -----------------------------------------------------------------------------------------------------------------------
 
+
+#     dataset = preprocess.normalization(dataset, normtype)
+#
     #Parse input arguments
     from argparse import ArgumentParser
 
@@ -35,7 +37,7 @@ def main():
     parser.add_argument("-n", "--normtype", dest="normtype",
                         help="Specify the normtype std, maxmin, all(std+maxmin), if not specified default do not normalize", metavar="NORMTYPE")
     parser.add_argument("-f", "--features", dest="features",
-                        help="Specify the number of PCA components to train model: 1-45(integer)", metavar="FEATURES")
+                        help="Specify the number of PCA components to train model: 1-41(integer)", metavar="FEATURES")
     args = parser.parse_args()
 
     #read parametes
@@ -43,10 +45,8 @@ def main():
         print("classifier not specified using two classifier")
         print("use the -h option to see usage information")
         classifier = 'two'
-        pos_label = 2
     else:
         classifier = args.classes
-        pos_label = 9
 
 
     if args.rate is None:
@@ -54,7 +54,7 @@ def main():
         print("use the -h option to see usage information")
         rate = 0.33
     else:
-        rate = int(args.rate)
+        rate = float(args.rate)
 
     if args.model is None:
         print("Model not specified using default (decision tree)")
@@ -77,42 +77,45 @@ def main():
     if args.features is None:
         print("the number of PCA components not specified using all features")
         print("use the -h option to see usage information")
-        n_features = 45
+        n_features = 41
     else:
         n_features = int(args.features)
 
+    import preprocess
 
-    Preprocessing = preprocess()
     # Merge 4 cvs file to one dataset with head
-    dataset = Preprocessing.merge4datasets(path1, path2, path3, path4)
+    after_merge_dataset = preprocess.merge4datasets(path1, path2, path3, path4)
+
     # Convert categorical data into discrete values using label encoder
-    dataset, inv_attack_cat_mapping = Preprocessing.mapping(dataset)
+    after_mapping_dataset, inv_attack_cat_mapping = preprocess.mapping(after_merge_dataset)
+
     # Normalization
     if normtype == 'std':
-        dataset = Preprocessing.normalization(dataset, normtype)
+        after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype)
     elif normtype == 'maxmin':
-        dataset = Preprocessing.normalization(dataset, normtype)
+        after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype)
     elif normtype == 'all':
-        dataset = Preprocessing.normalization(dataset, 'maxmin')
-        dataset = Preprocessing.normalization(dataset, 'maxmin')
+        dataset = preprocess.normalization(after_mapping_dataset, 'maxmin')
+        after_norm_dataset = preprocess.normalization(after_mapping_dataset, 'maxmin')
     else:
         pass
     #split datset to train and test dataset
-    X_train, X_test, Y_train, Y_test = Preprocessing.split(dataset, rate, classifier)
-    # PCA analysis, show variance of each features
-    X_train, X_test = Preprocessing.pca_analysis(X_train, X_test, n_features)
+    X_train, X_test, Y_train, Y_test = preprocess.split(after_norm_dataset, rate, classifier)
+    # PCA analysis, show variance of each features and choose n components as featuers to train
+    X_train, X_test = preprocess.pca_analysis(X_train, X_test, n_features, after_norm_dataset)
 
 ### Models
-    from sklearn.metrics import recall_score
-    import sklearn.metrics as metrics
-
+    import time
+    start_time = time.time()
     # Decision Tree
     if model == 'dt':
         from sklearn import tree
         # Create Decision Tree classifer object
         clf = tree.DecisionTreeClassifier()
         # Train Decision Tree Classifer
+        print('start training decision tree!')
         clf = clf.fit(X_train, Y_train)
+        print('finish training decision tree!')
         # Predict the response for test dataset
         Y_pred = clf.predict(X_test)
 
@@ -122,19 +125,59 @@ def main():
         # Create a Gaussian Claasifier
         clf = RandomForestClassifier(n_estimators=100)
         # Train Random Forest Classifer
+        print('start training random forest!')
         clf = clf.fit(X_train, Y_train)
+        print('finish training random forest!')
         # Predict the response for test dataset
         Y_pred = clf.predict(X_test)
     # SVM
     elif model == 'svm':
         from sklearn.svm import SVC
         # train SVM model
+        print('start training SVM!')
         svm_model_rbf = SVC(kernel='rbf', C=1).fit(X_train, Y_train)
+        print('finish training SVM!')
         #Predict the response for test dataset
         Y_pred = svm_model_rbf.predict(X_test)
 
     ## Evaluating Model
     # Model Accuracy, how often is the classifier correct?
     from sklearn.metrics import classification_report
-    print(inv_attack_cat_mapping)
-    print(classification_report(Y_test, Y_pred, labels=[0,1,2,3,4,5,6,7,8,9]))
+    if classifier == 'two':
+        print(classification_report(Y_test, Y_pred, labels=[0, 1]))
+    elif classifier == 'multi':
+        print(inv_attack_cat_mapping)
+        print(classification_report(Y_test, Y_pred, labels=[0,1,2,3,4,5,6,7,8,9]))
+
+    #running time
+    end_time = time.time()
+    print(end_time-start_time)
+
+
+# #%% debug here
+#     path1 = '/data/UNSW-NB15/UNSW-NB15_1 (copy).csv'
+#     path2 = '/data/UNSW-NB15/UNSW-NB15_2 (copy).csv'
+#     path3 = '/data/UNSW-NB15/UNSW-NB15_3 (copy).csv'
+#     path4 = '/data/UNSW-NB15/UNSW-NB15_4 (copy).csv'
+#     import  preprocess
+#     import pandas as pd
+#     import numpy as np
+#     from sklearn import preprocessing
+#
+#     classifier = 'two'
+#     rate = 0.33
+#     normtype = 'std'
+#     model = 'dt'
+#     n_features = 41
+#     after_merge_dataset = preprocess.merge4datasets(path1, path2, path3, path4)
+#     after_mapping_dataset, inv_attack_cat_mapping = preprocess.mapping(after_merge_dataset)
+#     after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype)
+#     X_train, X_test, Y_train, Y_test = preprocess.split(after_norm_dataset, rate, classifier)
+#     X_train, X_test = preprocess.pca_analysis(X_train, X_test, n_features, after_norm_dataset)
+#
+#
+#     # after_mapping_dataset['sport'] = pd.DataFrame(scaled_array)
+#     #after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype)
+
+if __name__ == "__main__":
+    main()
