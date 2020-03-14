@@ -47,6 +47,7 @@ def mapping(dataset):
 
     # delete unrelated feature id and attacks' category label
     after_drop_dataset = dataset.drop(columns=['srcip', 'dstip', 'ct_flw_http_mthd', 'is_ftp_login', 'stime', 'ltime'])
+
     after_drop_dataset.isna().sum()
     ## Mapping nominal features(proto, state, service, attack_cat) to int
 
@@ -73,11 +74,12 @@ def mapping(dataset):
     # print(proto_mapping)
     return(after_drop_dataset, inv_attack_cat_mapping)
 
-def normalization(dataset, normtype):
+def normalization(dataset, normtype, n_features):
 
     """Normalize each column based on max-min normalization or standard scalar"""
     from sklearn import preprocessing
     import pandas as pd
+
     # 1.convert the whole dataframe value of the dataframe as floats, creating NaNs when necessary
     dataset = dataset.apply(pd.to_numeric, args=('coerce',))
 
@@ -87,7 +89,7 @@ def normalization(dataset, normtype):
 
     if normtype == "maxmin":
        # normalize train features with maxmin function
-       for feature_name in dataset.columns[:-1]:
+       for feature_name in dataset.columns[:n_features]:
            # 1.convert the column value of the dataframe as floats
            col_array = dataset[feature_name].values.astype(float)
            col_array = col_array.reshape(-1, 1)
@@ -97,7 +99,7 @@ def normalization(dataset, normtype):
            dataset[feature_name] = pd.DataFrame(scaled_array)
     elif normtype == "std":
        # normalize train features with standard function
-       for feature_name in dataset.columns[:-1]:
+       for feature_name in dataset.columns[:n_features]:
            col_array = dataset[feature_name].values.astype(float)
            col_array = col_array.reshape(-1, 1)
            # 2. create a std processing object
@@ -136,7 +138,7 @@ def pca_analysis(X_train, X_test, n_features, after_norm_dataset):
     X_test = pca.transform(X_test)
     explained_variance = pca.explained_variance_ratio_
     i = 0
-    for col in after_norm_dataset.columns[:-2]:
+    for col in after_norm_dataset.columns[0:n_features]:
         print(col+' ', explained_variance[i])
         i = i + 1
     return(X_train, X_test)
