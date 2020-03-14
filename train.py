@@ -151,11 +151,11 @@ def main():
     from sklearn.metrics import classification_report
     if classifier == 'two':
         report = classification_report(Y_test, Y_pred, labels=[0, 1])
-        print(classification_report(Y_test, Y_pred, labels=[0, 1]))
+        print(report)
     elif classifier == 'multi':
         print(inv_attack_cat_mapping)
-        report = classification_report(Y_test, Y_pred, labels=[0, 1])
-        print(classification_report(Y_test, Y_pred, labels=[0,1,2,3,4,5,6,7,8,9,10,11,12,13]))
+        report = classification_report(Y_test, Y_pred, labels=[0,1,2,3,4,5,6,7,8,9,10,11,12,13])
+        print(report)
 
 # Output experiment results as csv file
     def classification_report_csv(report):
@@ -171,33 +171,32 @@ def main():
             row['support'] = float(row_data[4])
             report_data.append(row)
         dataframe = pd.DataFrame.from_dict(report_data)
-        dataframe.to_csv(model+n_features+'features'+normtype+'classification_report.csv', index=False)
+        dataframe.to_csv(model+'_'+str(n_features)+'features_'+normtype+'_'+'classification_report.csv', index=False)
 
-    report = classification_report(Y_test, Y_pred)
     classification_report_csv(report)
 
 
 
-#%% debug here
-    path1 = '/data/UNSW-NB15/UNSW-NB15_1 (copy).csv'
-    path2 = '/data/UNSW-NB15/UNSW-NB15_2 (copy).csv'
-    path3 = '/data/UNSW-NB15/UNSW-NB15_3 (copy).csv'
-    path4 = '/data/UNSW-NB15/UNSW-NB15_4 (copy).csv'
-    import  preprocess
-    import pandas as pd
-    import numpy as np
-    from sklearn import preprocessing
-
-    classifier = 'two'
-    rate = 0.33
-    normtype = 'std'
-    model = 'svm'
-    n_features = 20
-    after_merge_dataset = preprocess.merge4datasets(path1, path2, path3, path4)
-    after_mapping_dataset, inv_attack_cat_mapping = preprocess.mapping(after_merge_dataset)
-    after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype, n_features)
-    X_train, X_test, Y_train, Y_test = preprocess.split(after_norm_dataset, rate, classifier)
-    X_train, X_test = preprocess.pca_analysis(X_train, X_test, n_features, after_norm_dataset)
+# #%% debug here
+#     path1 = '/data/UNSW-NB15/UNSW-NB15_1 (copy).csv'
+#     path2 = '/data/UNSW-NB15/UNSW-NB15_2 (copy).csv'
+#     path3 = '/data/UNSW-NB15/UNSW-NB15_3 (copy).csv'
+#     path4 = '/data/UNSW-NB15/UNSW-NB15_4 (copy).csv'
+#     import  preprocess
+#     import pandas as pd
+#     import numpy as np
+#     from sklearn import preprocessing
+#
+#     classifier = 'two'
+#     rate = 0.33
+#     normtype = 'std'
+#     model = 'svm'
+#     n_features = 20
+#     after_merge_dataset = preprocess.merge4datasets(path1, path2, path3, path4)
+#     after_mapping_dataset, inv_attack_cat_mapping = preprocess.mapping(after_merge_dataset)
+#     after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype, n_features)
+#     X_train, X_test, Y_train, Y_test = preprocess.split(after_norm_dataset, rate, classifier)
+#     X_train, X_test = preprocess.pca_analysis(X_train, X_test, n_features, after_norm_dataset)
 # %%
 # for feature_name in after_mapping_dataset.columns[:-2]:
 #     print(feature_name)
