@@ -158,6 +158,7 @@ def main():
         print(report)
 
 # Output experiment results as csv file
+    import pandas as pd
     def classification_report_csv(report):
         report_data = []
         lines = report.split('\n')
