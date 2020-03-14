@@ -94,12 +94,12 @@ def main():
 
     # Normalization
     if normtype == 'std':
-        after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype)
+        after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype, n_features)
     elif normtype == 'maxmin':
-        after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype)
+        after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype, n_features)
     elif normtype == 'all':
-        dataset = preprocess.normalization(after_mapping_dataset, 'maxmin')
-        after_norm_dataset = preprocess.normalization(after_mapping_dataset, 'maxmin')
+        dataset = preprocess.normalization(after_mapping_dataset, 'std', n_features)
+        after_norm_dataset = preprocess.normalization(after_mapping_dataset, 'maxmin', n_features)
     else:
         pass
 
