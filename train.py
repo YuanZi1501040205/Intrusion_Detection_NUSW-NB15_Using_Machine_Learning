@@ -18,8 +18,11 @@ def main():
     path2 = '/data/UNSW-NB15/UNSW-NB15_2.csv'
     path3 = '/data/UNSW-NB15/UNSW-NB15_3.csv'
     path4 = '/data/UNSW-NB15/UNSW-NB15_4.csv'
-    # -----------------------------------------------------------------------------------------------------------------------
-
+    #-----------------------------------------------------------------------------------------------------------------------
+    # path1 = '/data/UNSW-NB15/UNSW-NB15_1 (copy).csv'
+    # path2 = '/data/UNSW-NB15/UNSW-NB15_2 (copy).csv'
+    # path3 = '/data/UNSW-NB15/UNSW-NB15_3 (copy).csv'
+    # path4 = '/data/UNSW-NB15/UNSW-NB15_4 (copy).csv'
 
 #     dataset = preprocess.normalization(dataset, normtype)
 #
@@ -99,6 +102,7 @@ def main():
         after_norm_dataset = preprocess.normalization(after_mapping_dataset, 'maxmin')
     else:
         pass
+
     #split datset to train and test dataset
     X_train, X_test, Y_train, Y_test = preprocess.split(after_norm_dataset, rate, classifier)
     # PCA analysis, show variance of each features and choose n components as featuers to train
@@ -116,8 +120,6 @@ def main():
         print('start training decision tree!')
         clf = clf.fit(X_train, Y_train)
         print('finish training decision tree!')
-        # Predict the response for test dataset
-        Y_pred = clf.predict(X_test)
 
     # Random forest
     elif model == 'rf':
@@ -128,17 +130,21 @@ def main():
         print('start training random forest!')
         clf = clf.fit(X_train, Y_train)
         print('finish training random forest!')
-        # Predict the response for test dataset
-        Y_pred = clf.predict(X_test)
+
     # SVM
     elif model == 'svm':
         from sklearn.svm import SVC
         # train SVM model
         print('start training SVM!')
-        svm_model_rbf = SVC(kernel='rbf', C=1).fit(X_train, Y_train)
+        clf = SVC(kernel='rbf', C=1).fit(X_train, Y_train)
         print('finish training SVM!')
-        #Predict the response for test dataset
-        Y_pred = svm_model_rbf.predict(X_test)
+
+    #running time
+    end_time = time.time()
+    print(end_time-start_time)
+
+    #Predict the response for test dataset
+    Y_pred = clf.predict(X_test)
 
     ## Evaluating Model
     # Model Accuracy, how often is the classifier correct?
@@ -147,37 +153,37 @@ def main():
         print(classification_report(Y_test, Y_pred, labels=[0, 1]))
     elif classifier == 'multi':
         print(inv_attack_cat_mapping)
-        print(classification_report(Y_test, Y_pred, labels=[0,1,2,3,4,5,6,7,8,9]))
-
-    #running time
-    end_time = time.time()
-    print(end_time-start_time)
+        print(classification_report(Y_test, Y_pred, labels=[0,1,2,3,4,5,6,7,8,9,10,11,12,13]))
 
 
-# #%% debug here
-#     path1 = '/data/UNSW-NB15/UNSW-NB15_1 (copy).csv'
-#     path2 = '/data/UNSW-NB15/UNSW-NB15_2 (copy).csv'
-#     path3 = '/data/UNSW-NB15/UNSW-NB15_3 (copy).csv'
-#     path4 = '/data/UNSW-NB15/UNSW-NB15_4 (copy).csv'
-#     import  preprocess
-#     import pandas as pd
-#     import numpy as np
-#     from sklearn import preprocessing
+
+
+#%% debug here
+    path1 = '/data/UNSW-NB15/UNSW-NB15_1 (copy).csv'
+    path2 = '/data/UNSW-NB15/UNSW-NB15_2 (copy).csv'
+    path3 = '/data/UNSW-NB15/UNSW-NB15_3 (copy).csv'
+    path4 = '/data/UNSW-NB15/UNSW-NB15_4 (copy).csv'
+    import  preprocess
+    import pandas as pd
+    import numpy as np
+    from sklearn import preprocessing
+
+    classifier = 'two'
+    rate = 0.33
+    normtype = 'std'
+    model = 'svm'
+    n_features = 20
+    after_merge_dataset = preprocess.merge4datasets(path1, path2, path3, path4)
+    after_mapping_dataset, inv_attack_cat_mapping = preprocess.mapping(after_merge_dataset)
+    after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype, n_features)
+    X_train, X_test, Y_train, Y_test = preprocess.split(after_norm_dataset, rate, classifier)
+    X_train, X_test = preprocess.pca_analysis(X_train, X_test, n_features, after_norm_dataset)
+# %%
+# for feature_name in after_mapping_dataset.columns[:-2]:
+#     print(feature_name)
 #
-#     classifier = 'two'
-#     rate = 0.33
-#     normtype = 'std'
-#     model = 'dt'
-#     n_features = 41
-#     after_merge_dataset = preprocess.merge4datasets(path1, path2, path3, path4)
-#     after_mapping_dataset, inv_attack_cat_mapping = preprocess.mapping(after_merge_dataset)
-#     after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype)
-#     X_train, X_test, Y_train, Y_test = preprocess.split(after_norm_dataset, rate, classifier)
-#     X_train, X_test = preprocess.pca_analysis(X_train, X_test, n_features, after_norm_dataset)
-#
-#
-#     # after_mapping_dataset['sport'] = pd.DataFrame(scaled_array)
-#     #after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype)
+    # after_mapping_dataset['sport'] = pd.DataFrame(scaled_array)
+    #after_norm_dataset = preprocess.normalization(after_mapping_dataset, normtype)
 
 if __name__ == "__main__":
     main()
