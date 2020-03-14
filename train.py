@@ -150,31 +150,19 @@ def main():
     # Model Accuracy, how often is the classifier correct?
     from sklearn.metrics import classification_report
     if classifier == 'two':
-        report = classification_report(Y_test, Y_pred, labels=[0, 1])
+        report = classification_report(Y_test, Y_pred, labels=[0, 1], output_dict=True)
         print(report)
     elif classifier == 'multi':
         print(inv_attack_cat_mapping)
-        report = classification_report(Y_test, Y_pred, labels=[0,1,2,3,4,5,6,7,8,9,10,11,12,13])
+        report = classification_report(Y_test, Y_pred, labels=[0,1,2,3,4,5,6,7,8,9,10,11,12,13], output_dict=True)
         print(report)
 
 # Output experiment results as csv file
     import pandas as pd
-    def classification_report_csv(report):
-        report_data = []
-        lines = report.split('\n')
-        for line in lines[2:-3]:
-            row = {}
-            row_data = line.split('      ')
-            row['class'] = row_data[0]
-            row['precision'] = float(row_data[1])
-            row['recall'] = float(row_data[2])
-            row['f1_score'] = float(row_data[3])
-            row['support'] = float(row_data[4])
-            report_data.append(row)
-        dataframe = pd.DataFrame.from_dict(report_data)
-        dataframe.to_csv(model+'_'+str(n_features)+'features_'+normtype+'_'+'classification_report.csv', index=False)
 
-    classification_report_csv(report)
+    reportcsv = pd.DataFrame.from_dict(report)
+    reportcsv.to_csv(model+'_'+str(n_features)+'features_'+normtype+'_'+'classification_report.csv', index=True)
+
 
 
 
