@@ -150,18 +150,18 @@ def main():
     # Model Accuracy, how often is the classifier correct?
     from sklearn.metrics import classification_report
     if classifier == 'two':
-        report = classification_report(Y_test, Y_pred, labels=[0, 1], output_dict=True)
+        report = classification_report(Y_test, Y_pred, labels=[0, 1])
         print(report)
     elif classifier == 'multi':
         print(inv_attack_cat_mapping)
-        report = classification_report(Y_test, Y_pred, labels=[0,1,2,3,4,5,6,7,8,9,10,11,12,13], output_dict=True)
+        report = classification_report(Y_test, Y_pred, labels=[0,1,2,3,4,5,6,7,8,9,10,11,12,13])
         print(report)
 
 # Output experiment results as csv file
-    import pandas as pd
+    f= open(model+'_'+str(n_features)+'features_'+normtype+'_'+'classification_report.txt',"w+")
+    f.write(report)
+    f.close()
 
-    reportcsv = pd.DataFrame.from_dict(report)
-    reportcsv.to_csv(model+'_'+str(n_features)+'features_'+normtype+'_'+'classification_report.csv', index=True)
 
 
 
